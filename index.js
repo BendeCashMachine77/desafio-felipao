@@ -10,6 +10,8 @@ class Personagem {
         this.xp = xp;
         this.pocoes = 2; // Máximo de 2 poções por personagem
         this.vitorias = 0;
+        this.derrotas = 0; // Contador de derrotas
+        this.mortesSequidas = 0; // Contador de mortes seguidas
         this.congelado = false; // Status de congelamento (especiais bloqueados)
         this.escudoAtivo = false; // Status de escudo ativo
         this.turnosEscudo = 0; // Contador de turnos com escudo
@@ -83,10 +85,54 @@ class Personagem {
         console.log(`${personagem.nome}: [${barraVida}] ${personagem.vidaAtual}/${personagem.vidaMaxima} HP`);
     }
 
-    // Ganhar XP
+    // Ganhar XP (apenas por vitória)
     ganharXP(quantidade) {
         this.xp += quantidade;
-        console.log(`${this.nome} ganhou ${quantidade} XP! (Total: ${this.xp})`);
+        console.log(`🏆 ${this.nome} ganhou ${quantidade} XP por vencer o round! (Total: ${this.xp})`);
+        
+        // Verificar se subiu de nível
+        let nivelAnterior = this.getNivel();
+        if (this.xp >= this.getProximoNivel()) {
+            console.log(`🎉 ${this.nome} subiu de nível! Agora é ${this.getNivel()}!`);
+        }
+    }
+
+    // Registrar derrota
+    registrarDerrota() {
+        this.derrotas++;
+        this.mortesSequidas++;
+        
+        console.log(`💀 ${this.nome} sofreu uma derrota! (${this.mortesSequidas} mortes seguidas)`);
+        
+        // Resetar XP após 5 mortes seguidas
+        if (this.mortesSequidas >= 5) {
+            let xpPerdido = this.xp;
+            this.xp = 0;
+            this.mortesSequidas = 0; // Resetar contador
+            console.log(`💥 ${this.nome} perdeu todo o XP (${xpPerdido}) após 5 mortes seguidas! Volta ao nível Ferro!`);
+        }
+    }
+
+    // Registrar vitória (reseta contador de mortes seguidas)
+    registrarVitoria(xpGanho) {
+        this.vitorias++;
+        this.mortesSequidas = 0; // Resetar mortes seguidas ao vencer
+        this.ganharXP(xpGanho);
+        console.log(`🎊 ${this.nome} quebrou a sequência de derrotas! Mortes seguidas resetadas.`);
+    }
+
+    // Obter XP necessário para próximo nível
+    getProximoNivel() {
+        switch (true) {
+            case (this.xp < 1000): return 1000;
+            case (this.xp < 2000): return 2000;
+            case (this.xp < 5000): return 5000;
+            case (this.xp < 6000): return 6000;
+            case (this.xp < 8000): return 8000;
+            case (this.xp < 9000): return 9000;
+            case (this.xp < 10000): return 10000;
+            default: return 999999; // Nível máximo
+        }
     }
 
     // Verificar se está vivo
@@ -98,7 +144,7 @@ class Personagem {
 // Classe específica para Arqueira
 class Arqueira extends Personagem {
     constructor(nome) {
-        super(nome, "Arqueira", 90, 25, 8, 7200); // Menos vida, mais ataque, menos defesa
+        super(nome, "Arqueira", 90, 25, 8, 0); // Começar com 0 XP
         this.precisao = 0.85; // 85% de precisão
         this.fenixDisponivel = true; // Especial disponível por round
         this.flechaPerfuranteDisponivel = true; // Segunda habilidade disponível por round
@@ -263,7 +309,7 @@ class Arqueira extends Personagem {
 // Classe específica para Pikeman
 class Pikeman extends Personagem {
     constructor(nome) {
-        super(nome, "Pikeman", 110, 20, 12, 6800); // Mais vida, menos ataque, mais defesa
+        super(nome, "Pikeman", 110, 20, 12, 0); // Começar com 0 XP
         this.alcance = true; // Vantagem de alcance
         this.foiceDisponivel = true; // Especial disponível por round
         this.mestreSombrasDisponivel = true; // Segunda habilidade disponível por round
@@ -458,11 +504,12 @@ function batalha(personagem1, personagem2) {
     
     console.log(`\n🏆 ${vencedor.nome} venceu a batalha!`);
     
-    // Ganhar XP
-    vencedor.ganharXP(Math.floor(Math.random() * 400) + 200); // 200-600 XP
-    perdedor.ganharXP(Math.floor(Math.random() * 200) + 100); // 100-300 XP
+    // Sistema de XP apenas para vencedor
+    let xpGanho = Math.floor(Math.random() * 300) + 200; // 200-500 XP apenas para vencedor
+    vencedor.registrarVitoria(xpGanho);
     
-    vencedor.vitorias++;
+    // Perdedor registra derrota (pode perder XP após 5 mortes seguidas)
+    perdedor.registrarDerrota();
     
     // Resetar vida para próxima batalha
     personagem1.vidaAtual = personagem1.vidaMaxima;
@@ -487,6 +534,7 @@ console.log(`  🔥🦅 Especial 1: Fênix de Fogo (crítico letal)`);
 console.log(`  🏹💀 Especial 2: Flecha Perfurante (alto dano)`);
 console.log(`  🛡️✨ Especial 3: Escudo Élfico (proteção anti-sombras)`);
 console.log(`  ⭐ XP: ${artemis.xp} (Nível: ${artemis.getNivel()})`);
+console.log(`  💀 Mortes seguidas: ${artemis.mortesSequidas}/5`);
 
 console.log(`\n${grimReaper.nome} - ${grimReaper.classe}`);
 console.log(`  ❤️ Vida: ${grimReaper.vidaMaxima}`);
@@ -497,6 +545,7 @@ console.log(`  🧪 Poções: ${grimReaper.pocoes}`);
 console.log(`  ❄️🗡️ Especial 1: Foice de Gelo (congelamento)`);
 console.log(`  🌑👥 Especial 2: Mestre das Sombras (ataques múltiplos)`);
 console.log(`  ⭐ XP: ${grimReaper.xp} (Nível: ${grimReaper.getNivel()})`);
+console.log(`  💀 Mortes seguidas: ${grimReaper.mortesSequidas}/5`);
 
 // Realizar 3 rounds de batalha
 let resultados = [];
@@ -554,7 +603,12 @@ if (campeao) {
 }
 
 console.log(`\n⭐ XP e Níveis finais:`);
-console.log(`  ${artemis.nome}: ${artemis.xp} XP (Nível: ${artemis.getNivel()})`);
-console.log(`  ${grimReaper.nome}: ${grimReaper.xp} XP (Nível: ${grimReaper.getNivel()})`);
+console.log(`  ${artemis.nome}: ${artemis.xp} XP (Nível: ${artemis.getNivel()}) - ${artemis.vitorias}V/${artemis.derrotas}D - Mortes seguidas: ${artemis.mortesSequidas}/5`);
+console.log(`  ${grimReaper.nome}: ${grimReaper.xp} XP (Nível: ${grimReaper.getNivel()}) - ${grimReaper.vitorias}V/${grimReaper.derrotas}D - Mortes seguidas: ${grimReaper.mortesSequidas}/5`);
+
+console.log(`\n📊 Sistema de Progressão:`);
+console.log(`  🏆 XP ganho apenas por vitórias (200-500 XP por round vencido)`);
+console.log(`  💀 Após 5 mortes seguidas: XP resetado para 0 (volta ao Ferro)`);
+console.log(`  🎯 Vencer um round reseta o contador de mortes seguidas`);
 
 console.log(`\n🎮 === FIM DO TORNEIO === 🎮`);

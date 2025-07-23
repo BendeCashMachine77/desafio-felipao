@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚔️ Sistema de Combate Épico - Artemis vs Grim Reaper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .arena {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: 
+                radial-gradient(circle at 30% 70%, rgba(139, 69, 19, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(70, 130, 180, 0.3) 0%, transparent 50%),
+                linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            overflow: hidden;
+        }
+
+        /* Efeitos de partículas de fundo */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            animation: float 8s infinite linear;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10px) rotate(360deg); opacity: 0; }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 3px solid #ffd700;
+            position: relative;
+            z-index: 10;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 0 0 20px #ffd700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ffd700, #ff6b35, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #ffd700; }
+            to { text-shadow: 0 0 30px #ffd700, 0 0 40px #ff6b35; }
+        }
+
+        /* Arena de Combate */
+        .combat-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60vh;
+            padding: 0 50px;
+            position: relative;
+        }
+
+        /* Personagens */
+        .character {
+            position: relative;
+            text-align: center;
+            z-index: 5;
+        }
+
+        .character-avatar {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .artemis-avatar {
+            background: 
+                radial-gradient(circle at 30% 30%, #8B4513 0%, transparent 40%),
+                radial-gradient(circle at 70% 30%, #8B4513 0%, transparent 40%),
+                linear-gradient(135deg, #DEB887 0%, #CD853F 50%, #8B4513 100%);
+            border: 5px solid #ffd700;
+            box-shadow: 
+                0 0 30px rgba(255, 215, 0, 0.6),
+                inset 0 0 30px rgba(139, 69, 19, 0.3);
+            overflow: hidden;
+        }
+
+        .artemis-avatar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                /* Cabelo */
+                radial-gradient(ellipse 80px 60px at 50% 25%, #8B4513 0%, #8B4513 40%, transparent 41%),
+                /* Rosto */
+                radial-gradient(ellipse 60px 70px at 50% 45%, #FDBCB4 0%, #FDBCB4 70%, transparent 71%),
+                /* Olhos */
+                radial-gradient(circle 8px at 42% 40%, #654321 0%, #654321 50%, transparent 51%),
+                radial-gradient(circle 8px at 58% 40%, #654321 0%, #654321 50%, transparent 51%),
+                /* Arco */
+                linear-gradient(45deg, transparent 45%, #8B4513 46%, #8B4513 54%, transparent 55%),
+                /* Flecha */
+                linear-gradient(135deg, transparent 48%, #DAA520 49%, #DAA520 51%, transparent 52%),
+                /* Corda do arco */
+                linear-gradient(90deg, transparent 25%, #8B4513 26%, #8B4513 27%, transparent 28%);
+        }
+
+        .artemis-avatar::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 75%;
+            width: 40px;
+            height: 2px;
+            background: #DAA520;
+            transform: translate(-50%, -50%) rotate(45deg);
+            box-shadow: 
+                -15px 0 0 #8B4513,
+                15px 0 0 #CD853F;
+        }
+
+        .grimreaper-avatar {
+            background: 
+                radial-gradient(circle at 50% 20%, #2F4F4F 0%, transparent 60%),
+                linear-gradient(180deg, #1C1C1C 0%, #2F4F4F 50%, #708090 100%);
+            border: 5px solid #87ceeb;
+            box-shadow: 
+                0 0 30px rgba(135, 206, 235, 0.6),
+                inset 0 0 30px rgba(47, 79, 79, 0.3);
+            overflow: hidden;
+        }
+
+        .grimreaper-avatar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                /* Capuz */
+                radial-gradient(ellipse 90px 80px at 50% 30%, #1C1C1C 0%, #1C1C1C 60%, transparent 61%),
+                /* Rosto sombrio */
+                radial-gradient(ellipse 50px 40px at 50% 45%, #2F2F2F 0%, #2F2F2F 70%, transparent 71%),
+                /* Olhos brilhantes */
+                radial-gradient(circle 6px at 42% 42%, #87ceeb 0%, #87ceeb 60%, transparent 61%),
+                radial-gradient(circle 6px at 58% 42%, #87ceeb 0%, #87ceeb 60%, transparent 61%),
+                /* Foice - cabo */
+                linear-gradient(25deg, transparent 45%, #8B4513 46%, #8B4513 50%, transparent 51%),
+                /* Foice - lâmina */
+                radial-gradient(ellipse 25px 15px at 75% 25%, #C0C0C0 0%, #C0C0C0 70%, transparent 71%);
+        }
+
+        .grimreaper-avatar::after {
+            content: '';
+            position: absolute;
+            top: 25%;
+            left: 70%;
+            width: 30px;
+            height: 20px;
+            background: linear-gradient(45deg, #C0C0C0 0%, #E6E6FA 50%, #C0C0C0 100%);
+            border-radius: 50% 0 50% 0;
+            transform: rotate(25deg);
+            box-shadow: 
+                0 0 10px rgba(135, 206, 235, 0.5),
+                inset 2px 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Barras de Vida */
+        .health-bar {
+            width: 250px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px auto;
+            position: relative;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000 0%, #ffff00 50%, #00ff00 100%);
+            border-radius: 15px;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .health-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .health-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+            font-size: 0.9rem;
+        }
+
+        /* Informações do Personagem */
+        .character-info {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            min-width: 280px;
+        }
+
+        .character-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .artemis-name { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+        .grimreaper-name { color: #87ceeb; text-shadow: 0 0 10px #87ceeb; }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        /* XP Bar */
+        .xp-container {
+            margin: 10px 0;
+        }
+
+        .xp-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+
+        .xp-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4169e1 0%, #6a5acd 25%, #8a2be2 50%, #9370db 75%, #ba55d3 100%);
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+            position: relative;
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+        }
+
+        .xp-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+            animation: xpShine 3s infinite;
+        }
+
+        @keyframes xpShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .xp-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+            font-size: 0.75rem;
+            z-index: 1;
+        }
+
+        /* Diferentes cores para níveis */
+        .nivel-ferro .xp-fill { 
+            background: linear-gradient(90deg, #8c7853 0%, #a0885a 100%);
+            box-shadow: 0 0 10px rgba(140, 120, 83, 0.5);
+        }
+        
+        .nivel-bronze .xp-fill { 
+            background: linear-gradient(90deg, #cd7f32 0%, #d2691e 100%);
+            box-shadow: 0 0 10px rgba(205, 127, 50, 0.5);
+        }
+        
+        .nivel-prata .xp-fill { 
+            background: linear-gradient(90deg, #c0c0c0 0%, #d3d3d3 100%);
+            box-shadow: 0 0 10px rgba(192, 192, 192, 0.5);
+        }
+        
+        .nivel-ouro .xp-fill { 
+            background: linear-gradient(90deg, #ffd700 0%, #ffed4e 100%);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .nivel-platina .xp-fill { 
+            background: linear-gradient(90deg, #e5e4e2 0%, #bcc6cc 100%);
+            box-shadow: 0 0 10px rgba(229, 228, 226, 0.5);
+        }
+        
+        .nivel-ascendente .xp-fill { 
+            background: linear-gradient(90deg, #ff1493 0%, #ff69b4 100%);
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+        }
+        
+        .nivel-imortal .xp-fill { 
+            background: linear-gradient(90deg, #9400d3 0%, #8b00ff 100%);
+            box-shadow: 0 0 10px rgba(148, 0, 211, 0.5);
+        }
+        
+        .nivel-radiante .xp-fill { 
+            background: linear-gradient(90deg, #ff4500 0%, #ff6347 50%, #ffd700 100%);
+            box-shadow: 0 0 15px rgba(255, 69, 0, 0.8);
+            animation: radiantGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes radiantGlow {
+            from { box-shadow: 0 0 15px rgba(255, 69, 0, 0.8); }
+            to { box-shadow: 0 0 25px rgba(255, 215, 0, 1); }
+        }
+
+        /* Efeito de ganho de XP */
+        .xp-gain {
+            animation: xpPulse 0.8s ease-out;
+        }
+
+        @keyframes xpPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); filter: brightness(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* Área de Log de Combate */
+        .combat-log {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            border-top: 3px solid #ffd700;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px 10px;
+            border-radius: 5px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .log-attack { background: rgba(255, 0, 0, 0.2); border-left: 4px solid #ff0000; }
+        .log-special { background: rgba(255, 215, 0, 0.2); border-left: 4px solid #ffd700; }
+        .log-heal { background: rgba(0, 255, 0, 0.2); border-left: 4px solid #00ff00; }
+        .log-info { background: rgba(135, 206, 235, 0.2); border-left: 4px solid #87ceeb; }
+
+        /* Controles */
+        .controls {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 15;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Efeitos de Habilidades */
+        .skill-effect {
+            position: absolute;
+            pointer-events: none;
+            z-index: 8;
+        }
+
+        .fire-effect {
+            animation: fireBlast 1s ease-out;
+        }
+
+        @keyframes fireBlast {
+            0% { 
+                transform: scale(0.5);
+                opacity: 1;
+                filter: hue-rotate(0deg);
+            }
+            50% { 
+                transform: scale(1.5);
+                opacity: 0.8;
+                filter: hue-rotate(45deg);
+            }
+            100% { 
+                transform: scale(3);
+                opacity: 0;
+                filter: hue-rotate(90deg);
+            }
+        }
+
+        .ice-effect {
+            animation: iceFreeze 1s ease-out;
+        }
+
+        @keyframes iceFreeze {
+            0% { 
+                transform: scale(0);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.2);
+                opacity: 0.9;
+            }
+            100% { 
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .shadow-effect {
+            animation: shadowStrike 1.5s ease-out;
+        }
+
+        @keyframes shadowStrike {
+            0% { 
+                transform: scale(0.8) rotate(0deg);
+                opacity: 0.8;
+            }
+            25% { 
+                transform: scale(1.1) rotate(90deg);
+                opacity: 1;
+            }
+            75% { 
+                transform: scale(1.3) rotate(270deg);
+                opacity: 0.6;
+            }
+            100% { 
+                transform: scale(2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Status Effects */
+        .frozen { 
+            filter: hue-rotate(200deg) brightness(0.8);
+            animation: freeze 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes freeze {
+            from { filter: hue-rotate(200deg) brightness(0.8); }
+            to { filter: hue-rotate(220deg) brightness(0.6); }
+        }
+
+        .shielded {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            animation: shield 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes shield {
+            from { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+            to { box-shadow: 0 0 50px rgba(255, 215, 0, 1); }
+        }
+
+        /* Animações de Ataque */
+        .attacking {
+            animation: attackPulse 0.6s ease-in-out;
+        }
+
+        @keyframes attackPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); filter: brightness(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .taking-damage {
+            animation: damageShake 0.5s ease-in-out;
+        }
+
+        @keyframes damageShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); filter: brightness(1.5) hue-rotate(0deg); }
+            75% { transform: translateX(5px); filter: brightness(1.5) hue-rotate(10deg); }
+        }
+
+        /* Efeito de Vitória */
+        .victory {
+            animation: victoryGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes victoryGlow {
+            0%, 100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); 
+            }
+            50% { 
+                transform: scale(1.05); 
+                box-shadow: 0 0 50px rgba(255, 215, 0, 1), 0 0 70px rgba(255, 255, 255, 0.5); 
+            }
+        }
+
+        /* Hover nos avatares */
+        .character-avatar:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+            cursor: pointer;
+        }
+
+        /* Efeitos de Celebração */
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .celebration-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .celebration-title {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 30px #ffd700;
+            margin-bottom: 20px;
+            animation: celebrationPulse 2s ease-in-out infinite alternate;
+        }
+
+        .champion-name {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 20px #fff;
+            margin-bottom: 40px;
+            animation: championGlow 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes celebrationPulse {
+            from { 
+                transform: scale(1); 
+                text-shadow: 0 0 30px #ffd700; 
+            }
+            to { 
+                transform: scale(1.1); 
+                text-shadow: 0 0 50px #ffd700, 0 0 70px #ff6b35; 
+            }
+        }
+
+        @keyframes championGlow {
+            from { 
+                transform: scale(1); 
+                text-shadow: 0 0 20px #fff; 
+            }
+            to { 
+                transform: scale(1.05); 
+                text-shadow: 0 0 40px #fff, 0 0 60px #ffd700; 
+            }
+        }
+
+        /* Confetes */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            animation: confettiFall 3s linear infinite;
+        }
+
+        .confetti:nth-child(odd) { background: #ff6b35; }
+        .confetti:nth-child(3n) { background: #f7931e; }
+        .confetti:nth-child(4n) { background: #87ceeb; }
+        .confetti:nth-child(5n) { background: #ff1493; }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Explosões */
+        .explosion {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #ffd700 0%, #ff6b35 50%, transparent 70%);
+            border-radius: 50%;
+            animation: explode 1s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        /* Fogos de Artifício */
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: fireworkExplode 2s ease-out;
+        }
+
+        @keyframes fireworkExplode {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(20);
+                opacity: 0;
+            }
+        }
+
+        .celebration-button {
+            background: linear-gradient(45deg, #ffd700, #ff6b35);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            animation: buttonPulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes buttonPulse {
+            from { box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); }
+            to { box-shadow: 0 8px 25px rgba(255, 215, 0, 0.8); }
+        }
+
+        .celebration-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
+        }
+
+        /* Round Counter */
+        .round-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .combat-area {
+                flex-direction: column;
+                padding: 20px;
+                height: auto;
+            }
+
+            .character-avatar {
+                width: 150px;
+                height: 150px;
+            }
+
+            .character-info {
+                min-width: 250px;
+                margin: 10px 0;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .controls {
+                position: relative;
+                transform: none;
+                margin: 20px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="arena">
+        <!-- Partículas de fundo -->
+        <div class="particles" id="particles"></div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">⚔️ SISTEMA DE COMBATE ÉPICO ⚔️</h1>
+            <div class="round-counter">
+                <span>Round: <span id="currentRound">1</span>/3</span>
+            </div>
+        </div>
+
+        <!-- Área de Combate -->
+        <div class="combat-area">
+            <!-- Artemis -->
+            <div class="character" id="artemis">
+                <div class="character-avatar artemis-avatar" id="artemisAvatar"></div>
+                <div class="health-bar">
+                    <div class="health-fill" id="artemisHealth" style="width: 100%;">
+                        <div class="health-text" id="artemisHealthText">90/90 HP</div>
+                    </div>
+                </div>
+                <div class="character-info">
+                    <div class="character-name artemis-name">🏹 Artemis</div>
+                    <div class="stat-line"><span>⚔️ Ataque:</span> <span>25</span></div>
+                    <div class="stat-line"><span>🛡️ Defesa:</span> <span>8</span></div>
+                    <div class="stat-line"><span>🎯 Precisão:</span> <span>85%</span></div>
+                    <div class="stat-line"><span>🧪 Poções:</span> <span id="artemisPoções">2</span></div>
+                    <div class="stat-line"><span>⭐ XP:</span> <span id="artemisXP">0</span></div>
+                    <div class="stat-line"><span>🏆 Nível:</span> <span id="artemisLevel">Ferro</span></div>
+                    <div class="xp-container">
+                        <div class="xp-label">
+                            <span>Progresso XP</span>
+                            <span id="artemisXPProgress">0 / 1000</span>
+                        </div>
+                        <div class="xp-bar nivel-ferro" id="artemisXPContainer">
+                            <div class="xp-fill" id="artemisXPBar" style="width: 0%;">
+                                <div class="xp-text" id="artemisXPText">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-line"><span>💀 Mortes:</span> <span id="artemisDeaths">0/5</span></div>
+                </div>
+            </div>
+
+            <!-- VS Symbol -->
+            <div style="font-size: 4rem; color: #ffd700; text-shadow: 0 0 20px #ffd700;">VS</div>
+
+            <!-- Grim Reaper -->
+            <div class="character" id="grimReaper">
+                <div class="character-avatar grimreaper-avatar" id="grimReaperAvatar"></div>
+                <div class="health-bar">
+                    <div class="health-fill" id="grimReaperHealth" style="width: 100%;">
+                        <div class="health-text" id="grimReaperHealthText">110/110 HP</div>
+                    </div>
+                </div>
+                <div class="character-info">
+                    <div class="character-name grimreaper-name">🗡️ Grim Reaper</div>
+                    <div class="stat-line"><span>⚔️ Ataque:</span> <span>20</span></div>
+                    <div class="stat-line"><span>🛡️ Defesa:</span> <span>12</span></div>
+                    <div class="stat-line"><span>📏 Alcance:</span> <span>Especial</span></div>
+                    <div class="stat-line"><span>🧪 Poções:</span> <span id="grimReaperPoções">2</span></div>
+                    <div class="stat-line"><span>⭐ XP:</span> <span id="grimReaperXP">0</span></div>
+                    <div class="stat-line"><span>🏆 Nível:</span> <span id="grimReaperLevel">Ferro</span></div>
+                    <div class="xp-container">
+                        <div class="xp-label">
+                            <span>Progresso XP</span>
+                            <span id="grimReaperXPProgress">0 / 1000</span>
+                        </div>
+                        <div class="xp-bar nivel-ferro" id="grimReaperXPContainer">
+                            <div class="xp-fill" id="grimReaperXPBar" style="width: 0%;">
+                                <div class="xp-text" id="grimReaperXPText">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-line"><span>💀 Mortes:</span> <span id="grimReaperDeaths">0/5</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controles -->
+        <div class="controls">
+            <button class="btn" id="startBattle" onclick="iniciarBatalha()">🚀 INICIAR COMBATE</button>
+            <button class="btn" id="nextTournament" onclick="proximoTorneio()" style="display: none;">🎯 PRÓXIMO TORNEIO</button>
+            <button class="btn" id="resetBattle" onclick="resetarJogo()" style="display: none;">🔄 RESET COMPLETO</button>
+        </div>
+
+        <!-- Log de Combate -->
+        <div class="combat-log" id="combatLog">
+            <div class="log-entry log-info">
+                <strong>🎮 Sistema de Combate Épico Carregado!</strong><br>
+                Clique em "INICIAR COMBATE" para começar a batalha entre Artemis e Grim Reaper!
+            </div>
+        </div>
+
+        <!-- Tela de Celebração -->
+        <div class="celebration-overlay" id="celebrationOverlay">
+            <div class="celebration-title">🏆 CAMPEÃO ÉPICO! 🏆</div>
+            <div class="champion-name" id="championName">VENCEDOR</div>
+            <div style="text-align: center; color: #ccc; font-size: 1.2rem; margin-bottom: 20px;">
+                <div id="finalStats"></div>
+            </div>
+            <button class="celebration-button" onclick="fecharCelebracao()">� PRÓXIMO TORNEIO (Manter XP)</button>
+            <button class="celebration-button" onclick="fecharCelebracao(); resetarJogo();" style="background: linear-gradient(45deg, #ff1493, #ff6b35); margin-left: 20px;">🔄 RESET COMPLETO</button>
+        </div>
+    </div>
+
+    <script>
+        // Dados dos personagens (equivalente às classes JavaScript)
+        let artemis = {
+            nome: "Artemis",
+            classe: "Arqueira",
+            vidaMaxima: 90,
+            vidaAtual: 90,
+            ataque: 25,
+            defesa: 8,
+            xp: 0,
+            pocoes: 2,
+            vitorias: 0,
+            derrotas: 0,
+            mortesSequidas: 0,
+            congelado: false,
+            escudoAtivo: false,
+            turnosEscudo: 0,
+            precisao: 0.85,
+            fenixDisponivel: true,
+            flechaPerfuranteDisponivel: true,
+            escudoDisponivel: true
+        };
+
+        let grimReaper = {
+            nome: "Grim Reaper",
+            classe: "Pikeman",
+            vidaMaxima: 110,
+            vidaAtual: 110,
+            ataque: 20,
+            defesa: 12,
+            xp: 0,
+            pocoes: 2,
+            vitorias: 0,
+            derrotas: 0,
+            mortesSequidas: 0,
+            congelado: false,
+            alcance: true,
+            foiceDisponivel: true,
+            mestreSombrasDisponivel: true
+        };
+
+        let roundAtual = 1;
+        let emCombate = false;
+        let resultados = [];
+
+        // Inicializar partículas
+        function criarParticulas() {
+            const particles = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 5) + 's';
+                particles.appendChild(particle);
+            }
+        }
+
+        // Função para determinar nível baseado no XP
+        function getNivel(xp) {
+            if (xp < 1000) return "Ferro";
+            if (xp >= 1001 && xp <= 2000) return "Bronze";
+            if (xp >= 2001 && xp <= 5000) return "Prata";
+            if (xp >= 5001 && xp <= 6000) return "Ouro";
+            if (xp >= 6001 && xp <= 8000) return "Platina";
+            if (xp >= 8001 && xp <= 9000) return "Ascendente";
+            if (xp >= 9001 && xp <= 10000) return "Imortal";
+            return "Radiante";
+        }
+
+        // Função para calcular porcentagem de XP
+        function getXPInfo(xp) {
+            let niveis = [
+                { limite: 1000, nome: "ferro" },
+                { limite: 2000, nome: "bronze" },
+                { limite: 5000, nome: "prata" },
+                { limite: 6000, nome: "ouro" },
+                { limite: 8000, nome: "platina" },
+                { limite: 9000, nome: "ascendente" },
+                { limite: 10000, nome: "imortal" },
+                { limite: 999999, nome: "radiante" }
+            ];
+            
+            let anterior = 0;
+            for (let i = 0; i < niveis.length; i++) {
+                if (xp <= niveis[i].limite) {
+                    let xpNoNivel = xp - anterior;
+                    let xpNecessario = niveis[i].limite - anterior;
+                    let porcentagem = (xpNoNivel / xpNecessario) * 100;
+                    
+                    // Para o nível radiante
+                    if (niveis[i].limite === 999999) {
+                        porcentagem = 100;
+                        xpNecessario = "MAX";
+                    }
+                    
+                    return {
+                        porcentagem: Math.min(100, porcentagem),
+                        xpAtual: xpNoNivel,
+                        xpNecessario: xpNecessario,
+                        classeNivel: niveis[i].nome
+                    };
+                }
+                anterior = niveis[i].limite;
+            }
+            
+            return { porcentagem: 100, xpAtual: xp, xpNecessario: "MAX", classeNivel: "radiante" };
+        }
+
+        // Atualizar interface
+        function atualizarInterface() {
+            // Artemis
+            document.getElementById('artemisHealth').style.width = (artemis.vidaAtual / artemis.vidaMaxima) * 100 + '%';
+            document.getElementById('artemisHealthText').textContent = `${artemis.vidaAtual}/${artemis.vidaMaxima} HP`;
+            document.getElementById('artemisPoções').textContent = artemis.pocoes;
+            document.getElementById('artemisXP').textContent = artemis.xp;
+            document.getElementById('artemisLevel').textContent = getNivel(artemis.xp);
+            
+            // XP Bar Artemis
+            let artemisXPInfo = getXPInfo(artemis.xp);
+            document.getElementById('artemisXPBar').style.width = artemisXPInfo.porcentagem + '%';
+            document.getElementById('artemisXPText').textContent = Math.round(artemisXPInfo.porcentagem) + '%';
+            document.getElementById('artemisXPProgress').textContent = `${artemisXPInfo.xpAtual} / ${artemisXPInfo.xpNecessario}`;
+            document.getElementById('artemisXPContainer').className = `xp-bar nivel-${artemisXPInfo.classeNivel}`;
+            
+            document.getElementById('artemisDeaths').textContent = `${artemis.mortesSequidas}/5`;
+
+            // Grim Reaper
+            document.getElementById('grimReaperHealth').style.width = (grimReaper.vidaAtual / grimReaper.vidaMaxima) * 100 + '%';
+            document.getElementById('grimReaperHealthText').textContent = `${grimReaper.vidaAtual}/${grimReaper.vidaMaxima} HP`;
+            document.getElementById('grimReaperPoções').textContent = grimReaper.pocoes;
+            document.getElementById('grimReaperXP').textContent = grimReaper.xp;
+            document.getElementById('grimReaperLevel').textContent = getNivel(grimReaper.xp);
+            
+            // XP Bar Grim Reaper
+            let grimReaperXPInfo = getXPInfo(grimReaper.xp);
+            document.getElementById('grimReaperXPBar').style.width = grimReaperXPInfo.porcentagem + '%';
+            document.getElementById('grimReaperXPText').textContent = Math.round(grimReaperXPInfo.porcentagem) + '%';
+            document.getElementById('grimReaperXPProgress').textContent = `${grimReaperXPInfo.xpAtual} / ${grimReaperXPInfo.xpNecessario}`;
+            document.getElementById('grimReaperXPContainer').className = `xp-bar nivel-${grimReaperXPInfo.classeNivel}`;
+            
+            document.getElementById('grimReaperDeaths').textContent = `${grimReaper.mortesSequidas}/5`;
+
+            // Round
+            document.getElementById('currentRound').textContent = roundAtual;
+
+            // Status effects
+            const artemisAvatar = document.getElementById('artemisAvatar');
+            const grimReaperAvatar = document.getElementById('grimReaperAvatar');
+            
+            artemisAvatar.className = 'character-avatar artemis-avatar';
+            grimReaperAvatar.className = 'character-avatar grimreaper-avatar';
+            
+            if (artemis.congelado) artemisAvatar.classList.add('frozen');
+            if (artemis.escudoAtivo) artemisAvatar.classList.add('shielded');
+            if (grimReaper.congelado) grimReaperAvatar.classList.add('frozen');
+        }
+
+        // Adicionar mensagem ao log
+        function adicionarLog(mensagem, tipo = 'info') {
+            const log = document.getElementById('combatLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${tipo}`;
+            entry.innerHTML = mensagem;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Criar efeito visual
+        function criarEfeito(tipo, personagem) {
+            const avatar = document.getElementById(personagem + 'Avatar');
+            const effect = document.createElement('div');
+            effect.className = `skill-effect ${tipo}-effect`;
+            
+            // Adicionar animação de ataque ao avatar
+            avatar.classList.add('attacking');
+            setTimeout(() => avatar.classList.remove('attacking'), 600);
+            
+            if (tipo === 'fire') {
+                effect.innerHTML = '🔥';
+                effect.style.fontSize = '3rem';
+            } else if (tipo === 'ice') {
+                effect.innerHTML = '❄️';
+                effect.style.fontSize = '3rem';
+            } else if (tipo === 'shadow') {
+                effect.innerHTML = '🌑';
+                effect.style.fontSize = '3rem';
+            }
+            
+            effect.style.position = 'absolute';
+            effect.style.top = '50%';
+            effect.style.left = '50%';
+            effect.style.transform = 'translate(-50%, -50%)';
+            effect.style.zIndex = '9';
+            
+            avatar.appendChild(effect);
+            
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    effect.parentNode.removeChild(effect);
+                }
+            }, 2000);
+        }
+
+        // Adicionar efeito de dano
+        function aplicarEfeitoDano(personagem) {
+            const avatar = document.getElementById(personagem + 'Avatar');
+            avatar.classList.add('taking-damage');
+            setTimeout(() => avatar.classList.remove('taking-damage'), 500);
+        }
+
+        // Adicionar efeito de vitória
+        function aplicarEfeitoVitoria(personagem) {
+            const avatar = document.getElementById(personagem + 'Avatar');
+            avatar.classList.add('victory');
+            setTimeout(() => avatar.classList.remove('victory'), 3000);
+        }
+
+        // Adicionar efeito de ganho de XP
+        function aplicarEfeitoXP(personagem) {
+            const xpContainer = document.getElementById(personagem + 'XPContainer');
+            xpContainer.classList.add('xp-gain');
+            setTimeout(() => xpContainer.classList.remove('xp-gain'), 800);
+        }
+
+        // Criar confetes
+        function criarConfetes() {
+            const overlay = document.getElementById('celebrationOverlay');
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                overlay.appendChild(confetti);
+                
+                // Remover confete após animação
+                setTimeout(() => {
+                    if (confetti.parentNode) {
+                        confetti.parentNode.removeChild(confetti);
+                    }
+                }, 5000);
+            }
+        }
+
+        // Criar explosões
+        function criarExplosoes() {
+            const overlay = document.getElementById('celebrationOverlay');
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const explosion = document.createElement('div');
+                    explosion.className = 'explosion';
+                    explosion.style.left = Math.random() * 80 + 10 + '%';
+                    explosion.style.top = Math.random() * 60 + 20 + '%';
+                    overlay.appendChild(explosion);
+                    
+                    // Remover explosão após animação
+                    setTimeout(() => {
+                        if (explosion.parentNode) {
+                            explosion.parentNode.removeChild(explosion);
+                        }
+                    }, 1000);
+                }, i * 200);
+            }
+        }
+
+        // Criar fogos de artifício
+        function criarFogosArtificio() {
+            const overlay = document.getElementById('celebrationOverlay');
+            for (let i = 0; i < 12; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 90 + 5 + '%';
+                    firework.style.top = Math.random() * 70 + 15 + '%';
+                    
+                    // Cores aleatórias para fogos
+                    const cores = ['#ffd700', '#ff6b35', '#f7931e', '#87ceeb', '#ff1493', '#9370db', '#00ff00', '#ff0000'];
+                    firework.style.background = cores[Math.floor(Math.random() * cores.length)];
+                    firework.style.boxShadow = `0 0 10px ${firework.style.background}`;
+                    
+                    overlay.appendChild(firework);
+                    
+                    // Remover fogo após animação
+                    setTimeout(() => {
+                        if (firework.parentNode) {
+                            firework.parentNode.removeChild(firework);
+                        }
+                    }, 2000);
+                }, i * 150);
+            }
+        }
+
+        // Mostrar celebração do campeão
+        function mostrarCelebracao(campeao) {
+            const overlay = document.getElementById('celebrationOverlay');
+            const championName = document.getElementById('championName');
+            const finalStats = document.getElementById('finalStats');
+            
+            championName.textContent = campeao.nome.toUpperCase();
+            championName.style.color = campeao === artemis ? '#ffd700' : '#87ceeb';
+            
+            // Estatísticas finais
+            finalStats.innerHTML = `
+                <strong>🎊 ESTATÍSTICAS FINAIS 🎊</strong><br><br>
+                <div style="display: flex; justify-content: center; gap: 40px; margin: 20px 0;">
+                    <div style="text-align: center;">
+                        <div style="color: #ffd700; font-size: 1.5rem; margin-bottom: 10px;">🏹 ${artemis.nome}</div>
+                        <div>🏆 ${artemis.vitorias} Vitórias</div>
+                        <div>⭐ ${artemis.xp} XP (${getNivel(artemis.xp)})</div>
+                        <div>💀 ${artemis.mortesSequidas}/5 Mortes</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="color: #87ceeb; font-size: 1.5rem; margin-bottom: 10px;">🗡️ ${grimReaper.nome}</div>
+                        <div>🏆 ${grimReaper.vitorias} Vitórias</div>
+                        <div>⭐ ${grimReaper.xp} XP (${getNivel(grimReaper.xp)})</div>
+                        <div>💀 ${grimReaper.mortesSequidas}/5 Mortes</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; font-size: 1.1rem; color: #ffd700;">
+                    🎯 Placar Final: ${artemis.vitorias} x ${grimReaper.vitorias}
+                </div>
+            `;
+            
+            overlay.classList.add('active');
+            
+            // Iniciar efeitos visuais
+            criarConfetes();
+            setTimeout(() => criarExplosoes(), 500);
+            setTimeout(() => criarFogosArtificio(), 1000);
+            
+            // Continuar criando confetes
+            const confettiInterval = setInterval(criarConfetes, 2000);
+            setTimeout(() => clearInterval(confettiInterval), 8000);
+        }
+
+        // Fechar celebração
+        function fecharCelebracao() {
+            const overlay = document.getElementById('celebrationOverlay');
+            overlay.classList.remove('active');
+            
+            // Limpar efeitos visuais
+            const confetti = overlay.querySelectorAll('.confetti, .explosion, .firework');
+            confetti.forEach(element => {
+                if (element.parentNode) {
+                    element.parentNode.removeChild(element);
+                }
+            });
+            
+            // Usar proximoTorneio em vez de resetarJogo para manter XP
+            proximoTorneio();
+        }
+
+        // Simulação de combate (versão simplificada para demo)
+        function simularCombate() {
+            adicionarLog(`<strong>🔥 ===== ROUND ${roundAtual} ===== 🔥</strong>`, 'special');
+            
+            // Reset apenas habilidades e status para o round (MANTÉM XP e vitorias/derrotas)
+            artemis.pocoes = 2;
+            artemis.fenixDisponivel = true;
+            artemis.flechaPerfuranteDisponivel = true;
+            artemis.escudoDisponivel = true;
+            artemis.congelado = false;
+            artemis.escudoAtivo = false;
+            artemis.turnosEscudo = 0;
+            artemis.vidaAtual = artemis.vidaMaxima; // Reset de vida para o round
+            
+            grimReaper.pocoes = 2;
+            grimReaper.foiceDisponivel = true;
+            grimReaper.mestreSombrasDisponivel = true;
+            grimReaper.congelado = false;
+            grimReaper.vidaAtual = grimReaper.vidaMaxima; // Reset de vida para o round
+
+            let turno = 1;
+            let vencedor = null;
+
+            const simularTurno = () => {
+                if (artemis.vidaAtual <= 0 || grimReaper.vidaAtual <= 0 || turno > 20) {
+                    // Determinar vencedor
+                    if (artemis.vidaAtual > 0) {
+                        vencedor = artemis;
+                        artemis.vitorias++;
+                        artemis.mortesSequidas = 0;
+                        let xpGanho = Math.floor(Math.random() * 300) + 200;
+                        artemis.xp += xpGanho;
+                        grimReaper.derrotas++;
+                        grimReaper.mortesSequidas++;
+                        aplicarEfeitoVitoria('artemis');
+                        aplicarEfeitoXP('artemis');
+                        adicionarLog(`<strong>🏆 ${artemis.nome} venceu a batalha!</strong>`, 'special');
+                        adicionarLog(`🏆 ${artemis.nome} ganhou ${xpGanho} XP!`, 'heal');
+                    } else {
+                        vencedor = grimReaper;
+                        grimReaper.vitorias++;
+                        grimReaper.mortesSequidas = 0;
+                        let xpGanho = Math.floor(Math.random() * 300) + 200;
+                        grimReaper.xp += xpGanho;
+                        artemis.derrotas++;
+                        artemis.mortesSequidas++;
+                        aplicarEfeitoVitoria('grimReaper');
+                        aplicarEfeitoXP('grimReaper');
+                        adicionarLog(`<strong>🏆 ${grimReaper.nome} venceu a batalha!</strong>`, 'special');
+                        adicionarLog(`🏆 ${grimReaper.nome} ganhou ${xpGanho} XP!`, 'heal');
+                    }
+
+                    // Reset de XP se necessário
+                    if (artemis.mortesSequidas >= 5) {
+                        artemis.xp = 0;
+                        artemis.mortesSequidas = 0;
+                        adicionarLog(`💥 ${artemis.nome} perdeu todo o XP após 5 mortes seguidas!`, 'attack');
+                    }
+                    if (grimReaper.mortesSequidas >= 5) {
+                        grimReaper.xp = 0;
+                        grimReaper.mortesSequidas = 0;
+                        adicionarLog(`💥 ${grimReaper.nome} perdeu todo o XP após 5 mortes seguidas!`, 'attack');
+                    }
+
+                    resultados.push(vencedor);
+                    
+                    atualizarInterface();
+
+                    if (roundAtual < 3) {
+                        roundAtual++;
+                        setTimeout(() => simularCombate(), 2000);
+                    } else {
+                        finalizarTorneio();
+                    }
+                    return;
+                }
+
+                adicionarLog(`<strong>--- Turno ${turno} ---</strong>`, 'info');
+
+                // Remover efeitos de status
+                if (artemis.congelado) {
+                    artemis.congelado = false;
+                    adicionarLog(`🌡️ ${artemis.nome} não está mais congelado!`, 'info');
+                }
+                if (grimReaper.congelado) {
+                    grimReaper.congelado = false;
+                    adicionarLog(`🌡️ ${grimReaper.nome} não está mais congelado!`, 'info');
+                }
+                if (artemis.escudoAtivo) {
+                    artemis.turnosEscudo--;
+                    if (artemis.turnosEscudo <= 0) {
+                        artemis.escudoAtivo = false;
+                        adicionarLog(`🌟 O Escudo Élfico de ${artemis.nome} desapareceu!`, 'info');
+                    }
+                }
+
+                // Artemis ataca
+                let habilidadeArtemis = Math.random();
+                if (!artemis.congelado && artemis.fenixDisponivel && habilidadeArtemis < 0.25) {
+                    artemis.fenixDisponivel = false;
+                    criarEfeito('fire', 'artemis');
+                    adicionarLog(`🔥🦅 ${artemis.nome} invoca o FÊNIX DE FOGO!`, 'special');
+                    let critico = Math.random() < 0.15;
+                    if (critico) {
+                        aplicarEfeitoDano('grimReaper');
+                        adicionarLog(`💥🔥 CRÍTICO LETAL! ${grimReaper.nome} foi incinerado!`, 'attack');
+                        grimReaper.vidaAtual = 0;
+                    } else {
+                        let dano = Math.floor(Math.random() * 30) + 25;
+                        aplicarEfeitoDano('grimReaper');
+                        grimReaper.vidaAtual = Math.max(0, grimReaper.vidaAtual - dano);
+                        adicionarLog(`🔥 O Fênix causa ${dano} de dano flamejante!`, 'attack');
+                    }
+                } else if (!artemis.congelado && artemis.flechaPerfuranteDisponivel && habilidadeArtemis >= 0.25 && habilidadeArtemis < 0.50) {
+                    artemis.flechaPerfuranteDisponivel = false;
+                    const artemisAvatar = document.getElementById('artemisAvatar');
+                    artemisAvatar.classList.add('attacking');
+                    setTimeout(() => artemisAvatar.classList.remove('attacking'), 600);
+                    adicionarLog(`🏹💀 ${artemis.nome} usa FLECHA PERFURANTE!`, 'special');
+                    let dano = Math.floor(Math.random() * 25) + 30;
+                    aplicarEfeitoDano('grimReaper');
+                    grimReaper.vidaAtual = Math.max(0, grimReaper.vidaAtual - dano);
+                    adicionarLog(`💀 A Flecha Perfurante causa ${dano} de dano!`, 'attack');
+                } else if (artemis.escudoDisponivel && habilidadeArtemis >= 0.50 && habilidadeArtemis < 0.75 && artemis.vidaAtual < 60) {
+                    artemis.escudoDisponivel = false;
+                    artemis.escudoAtivo = true;
+                    artemis.turnosEscudo = 3;
+                    let cura = Math.floor(Math.random() * 15) + 10;
+                    artemis.vidaAtual = Math.min(artemis.vidaMaxima, artemis.vidaAtual + cura);
+                    adicionarLog(`🛡️✨ ${artemis.nome} invoca ESCUDO ÉLFICO e recupera ${cura} de vida!`, 'heal');
+                } else {
+                    const artemisAvatar = document.getElementById('artemisAvatar');
+                    artemisAvatar.classList.add('attacking');
+                    setTimeout(() => artemisAvatar.classList.remove('attacking'), 600);
+                    let dano = Math.floor(Math.random() * 15) + 10;
+                    aplicarEfeitoDano('grimReaper');
+                    grimReaper.vidaAtual = Math.max(0, grimReaper.vidaAtual - dano);
+                    adicionarLog(`🏹 ${artemis.nome} dispara uma flecha causando ${dano} de dano!`, 'attack');
+                }
+
+                if (grimReaper.vidaAtual <= 0) {
+                    atualizarInterface();
+                    setTimeout(simularTurno, 1500);
+                    return;
+                }
+
+                // Grim Reaper ataca
+                let habilidadeGrim = Math.random();
+                if (grimReaper.foiceDisponivel && habilidadeGrim < 0.33) {
+                    grimReaper.foiceDisponivel = false;
+                    criarEfeito('ice', 'grimReaper');
+                    adicionarLog(`❄️🗡️ ${grimReaper.nome} invoca FOICE DE GELO!`, 'special');
+                    let dano = Math.floor(Math.random() * 20) + 25;
+                    aplicarEfeitoDano('artemis');
+                    artemis.vidaAtual = Math.max(0, artemis.vidaAtual - dano);
+                    artemis.congelado = true;
+                    adicionarLog(`❄️ A Foice causa ${dano} de dano e congela ${artemis.nome}!`, 'attack');
+                } else if (grimReaper.mestreSombrasDisponivel && habilidadeGrim >= 0.33 && habilidadeGrim < 0.66) {
+                    grimReaper.mestreSombrasDisponivel = false;
+                    criarEfeito('shadow', 'grimReaper');
+                    adicionarLog(`🌑👥 ${grimReaper.nome} ativa MESTRE DAS SOMBRAS!`, 'special');
+                    let numeroSombras = Math.floor(Math.random() * 3) + 3;
+                    let danoTotal = 0;
+                    for (let i = 1; i <= numeroSombras; i++) {
+                        let danoSombra = Math.floor(Math.random() * 8) + 5;
+                        if (artemis.escudoAtivo) danoSombra = Math.floor(danoSombra * 0.4);
+                        danoTotal += danoSombra;
+                        aplicarEfeitoDano('artemis');
+                        artemis.vidaAtual = Math.max(0, artemis.vidaAtual - danoSombra);
+                    }
+                    adicionarLog(`👥 ${numeroSombras} sombras causam ${danoTotal} de dano total!`, 'attack');
+                } else {
+                    const grimReaperAvatar = document.getElementById('grimReaperAvatar');
+                    grimReaperAvatar.classList.add('attacking');
+                    setTimeout(() => grimReaperAvatar.classList.remove('attacking'), 600);
+                    let dano = Math.floor(Math.random() * 12) + 8;
+                    aplicarEfeitoDano('artemis');
+                    artemis.vidaAtual = Math.max(0, artemis.vidaAtual - dano);
+                    adicionarLog(`🗡️ ${grimReaper.nome} ataca com a foice causando ${dano} de dano!`, 'attack');
+                }
+
+                turno++;
+                atualizarInterface();
+                setTimeout(simularTurno, 1500);
+            };
+
+            setTimeout(simularTurno, 1000);
+        }
+
+        function finalizarTorneio() {
+            adicionarLog(`<strong>📈 === ESTATÍSTICAS FINAIS === 📈</strong>`, 'special');
+            
+            for (let i = 0; i < resultados.length; i++) {
+                if (resultados[i]) {
+                    adicionarLog(`🏆 Round ${i + 1}: ${resultados[i].nome} venceu!`, 'heal');
+                }
+            }
+
+            let campeao;
+            if (artemis.vitorias > grimReaper.vitorias) {
+                campeao = artemis;
+            } else if (grimReaper.vitorias > artemis.vitorias) {
+                campeao = grimReaper;
+            } else {
+                campeao = null;
+            }
+
+            if (campeao) {
+                adicionarLog(`<strong>👑 CAMPEÃO GERAL: ${campeao.nome}!</strong>`, 'special');
+                
+                // Mostrar celebração épica após 2 segundos
+                setTimeout(() => {
+                    mostrarCelebracao(campeao);
+                }, 2000);
+            } else {
+                adicionarLog(`<strong>🤝 EMPATE GERAL!</strong>`, 'special');
+                
+                // Mesmo com empate, mostrar celebração
+                setTimeout(() => {
+                    const overlay = document.getElementById('celebrationOverlay');
+                    const championName = document.getElementById('championName');
+                    championName.textContent = 'EMPATE ÉPICO!';
+                    championName.style.color = '#ffd700';
+                    mostrarCelebracao(artemis); // Usar artemis só para as estatísticas
+                }, 2000);
+            }
+
+            document.getElementById('startBattle').style.display = 'none';
+            document.getElementById('resetBattle').style.display = 'none'; // Esconder até a celebração
+            emCombate = false;
+        }
+
+        function iniciarBatalha() {
+            if (emCombate) return;
+            
+            emCombate = true;
+            document.getElementById('startBattle').style.display = 'none';
+            
+            adicionarLog(`<strong>🚀 INICIANDO COMBATE ÉPICO!</strong>`, 'special');
+            setTimeout(() => simularCombate(), 1000);
+        }
+
+        function resetarJogo() {
+            // Reset completo apenas quando solicitado pelo usuário
+            artemis = {
+                nome: "Artemis",
+                classe: "Arqueira",
+                vidaMaxima: 90,
+                vidaAtual: 90,
+                ataque: 25,
+                defesa: 8,
+                xp: 0,
+                pocoes: 2,
+                vitorias: 0,
+                derrotas: 0,
+                mortesSequidas: 0,
+                congelado: false,
+                escudoAtivo: false,
+                turnosEscudo: 0,
+                precisao: 0.85,
+                fenixDisponivel: true,
+                flechaPerfuranteDisponivel: true,
+                escudoDisponivel: true
+            };
+
+            grimReaper = {
+                nome: "Grim Reaper",
+                classe: "Pikeman",
+                vidaMaxima: 110,
+                vidaAtual: 110,
+                ataque: 20,
+                defesa: 12,
+                xp: 0,
+                pocoes: 2,
+                vitorias: 0,
+                derrotas: 0,
+                mortesSequidas: 0,
+                congelado: false,
+                alcance: true,
+                foiceDisponivel: true,
+                mestreSombrasDisponivel: true
+            };
+
+            roundAtual = 1;
+            resultados = [];
+            emCombate = false;
+
+            // Limpar todas as animações dos avatares
+            const artemisAvatar = document.getElementById('artemisAvatar');
+            const grimReaperAvatar = document.getElementById('grimReaperAvatar');
+            artemisAvatar.className = 'character-avatar artemis-avatar';
+            grimReaperAvatar.className = 'character-avatar grimreaper-avatar';
+
+            // Limpar log
+            document.getElementById('combatLog').innerHTML = `
+                <div class="log-entry log-info">
+                    <strong>🎮 Sistema Resetado!</strong><br>
+                    Clique em "INICIAR COMBATE" para uma nova batalha épica!
+                </div>
+            `;
+
+            document.getElementById('startBattle').style.display = 'inline-block';
+            document.getElementById('nextTournament').style.display = 'none';
+            document.getElementById('resetBattle').style.display = 'none';
+            
+            atualizarInterface();
+        }
+
+        // Nova função para apenas resetar para próximo torneio (mantém XP)
+        function proximoTorneio() {
+            // Reset apenas do estado de combate, mantém XP e estatísticas gerais
+            artemis.vidaAtual = artemis.vidaMaxima;
+            artemis.pocoes = 2;
+            artemis.vitorias = 0; // Reset vitórias do torneio atual
+            artemis.fenixDisponivel = true;
+            artemis.flechaPerfuranteDisponivel = true;
+            artemis.escudoDisponivel = true;
+            artemis.congelado = false;
+            artemis.escudoAtivo = false;
+            artemis.turnosEscudo = 0;
+            
+            grimReaper.vidaAtual = grimReaper.vidaMaxima;
+            grimReaper.pocoes = 2;
+            grimReaper.vitorias = 0; // Reset vitórias do torneio atual
+            grimReaper.foiceDisponivel = true;
+            grimReaper.mestreSombrasDisponivel = true;
+            grimReaper.congelado = false;
+
+            roundAtual = 1;
+            resultados = [];
+            emCombate = false;
+
+            // Limpar animações dos avatares
+            const artemisAvatar = document.getElementById('artemisAvatar');
+            const grimReaperAvatar = document.getElementById('grimReaperAvatar');
+            artemisAvatar.className = 'character-avatar artemis-avatar';
+            grimReaperAvatar.className = 'character-avatar grimreaper-avatar';
+
+            // Limpar log
+            document.getElementById('combatLog').innerHTML = `
+                <div class="log-entry log-info">
+                    <strong>🎮 Novo Torneio Iniciado!</strong><br>
+                    XP e progresso mantidos. Clique em "INICIAR COMBATE" para começar!
+                </div>
+            `;
+
+            document.getElementById('startBattle').style.display = 'inline-block';
+            document.getElementById('nextTournament').style.display = 'none';
+            document.getElementById('resetBattle').style.display = 'none';
+            
+            atualizarInterface();
+        }
+
+        // Inicializar
+        criarParticulas();
+        atualizarInterface();
+    </script>
+</body>
+</html>
